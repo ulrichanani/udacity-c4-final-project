@@ -74,21 +74,27 @@ functions:
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
-#   # TODO: Configure this function - 
-#   # Provide iamRoleStatements property. Decide the Actions and AWS Resource. 
-#   # To refer to an AWS resource defined in the "Resources" section, you can use "Resource: !GetAtt <resource-name>.Arn"
-#   # To validate incoming HTTP requests, we have provided the request schemas in function definition below. 
-#   CreateTodo:
-#     handler: src/lambda/http/createTodo.handler
-#     events:
-#       - http:
-#           method: post
-#           path: todos
-#           cors: true
-#           authorizer: Auth
-#           request:
-#             schemas:
-#               application/json: ${file(models/create-todo-model.json)}
+  # ✅ TODO: Configure this function - 
+  # Provide iamRoleStatements property. Decide the Actions and AWS Resource. 
+  # To refer to an AWS resource defined in the "Resources" section, you can use "Resource: !GetAtt <resource-name>.Arn"
+  # To validate incoming HTTP requests, we have provided the request schemas in function definition below. 
+  CreateTodo:
+    handler: src/lambda/http/createTodo.handler
+    events:
+      - http:
+          method: post
+          path: todos
+          cors: true
+          authorizer: Auth
+          request:
+            schemas:
+              application/json: ${file(models/create-todo-model.json)}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+
 
 #   # TODO: Configure this function
 #   # Provide property for setting up CORS, Authorizer, iamRoleStatements, and request schemas
@@ -134,14 +140,14 @@ resources:
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
-          - AttributeName: dueDate
+          - AttributeName: todoId
             AttributeType: S
           - AttributeName: createdAt
             AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
-          - AttributeName: dueDate
+          - AttributeName: todoId
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         LocalSecondaryIndexes:
