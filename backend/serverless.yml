@@ -136,29 +136,23 @@ resources:
             AttributeType: S
           - AttributeName: dueDate
             AttributeType: S
-          # - AttributeName: createdAt
-          #   AttributeType: S
-          # - AttributeName: todoId
-          #   AttributeType: S
-          # - AttributeName: name
-          #   AttributeType: S
-          # - AttributeName: done
-          #   AttributeType: BOOL
-          # - AttributeName: attachmentUrl
-          #   AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
           - AttributeName: dueDate
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-        # LocalSecondaryIndexes:
-        #   - IndexName: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
-        #     KeySchema: 
-        #       - AttributeName: createdAt
-        #         KeyType: RANGE
-        #     Projection: 
-        #       ProjectionType: KEYS_ONLY
+        LocalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
+            Projection: 
+              ProjectionType: ALL
 
     # # TODO: Complete the bucket properties below. 
     # # Do not forget to add the CorsConfiguration propoerty
