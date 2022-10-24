@@ -9,7 +9,7 @@ const XAWS = AWSXRay.captureAWS(AWS)
 
 const logger = createLogger('TodosAccess')
 
-// TODO: Implement the dataLayer logic
+// ✅ TODO: Implement the dataLayer logic
 
 
 export class TodosAccess {
@@ -37,13 +37,56 @@ export class TodosAccess {
     return items as TodoItem[]
   }
 
+  async getOneTodoForUser(userId: string, todoId: string): Promise<TodoItem> {
+    logger.info('Getting one todo')
+    const result = await this.docClient
+    .query({
+      TableName: this.todosTable,
+      KeyConditionExpression: 'userId = :userId and todoId = :todoId',
+      ExpressionAttributeValues: {
+        ':userId': userId,
+        ':todoId': todoId,
+      },
+      ScanIndexForward: false
+    })
+    .promise()
+
+    if (result.Count !== 0) {
+      return result.Items[0] as TodoItem
+    }
+
+    return null
+  }
+
   async createTodo(todo: TodoItem): Promise<TodoItem> {
+    logger.info('Creating new todo')
     await this.docClient.put({
       TableName: this.todosTable,
       Item: todo
     }).promise()
 
     return todo
+  }
+
+  async updateTodo(todo: TodoItem): Promise<TodoItem> {
+    logger.info('Updating a todo')
+    await this.docClient.put({
+      TableName: this.todosTable,
+      Item: todo
+    }).promise()
+
+    return todo
+  }
+
+  async deleteTodo(userId: string, todoId: string) {
+    logger.info('Deleting a todo')
+    await this.docClient.delete({
+      TableName: this.todosTable,
+      Key: {
+        userId: userId,
+        todoId: todoId
+      }
+    }).promise()
   }
 }
 

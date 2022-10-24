@@ -1,13 +1,13 @@
 import { TodosAccess } from './todosAccess'
-// import { AttachmentUtils } from './attachmentUtils';
+import { AttachmentUtils } from './attachmentUtils';
 import { TodoItem } from '../models/TodoItem'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
-// import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
+import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
 import { createLogger } from '../utils/logger'
 import * as uuid from 'uuid'
-// import * as createError from 'http-errors'
+import * as createError from 'http-errors'
 
-// TODO: Implement businessLogic
+// ✅ TODO: Implement businessLogic
 
 const logger = createLogger('TodosBusinessLogic')
 
@@ -19,8 +19,8 @@ export async function getTodosForUser(userId: string): Promise<TodoItem[]> {
 }
 
 export async function createTodo(
-  createTodoRequest: CreateTodoRequest,
-  userId: string
+  userId: string,
+  createTodoRequest: CreateTodoRequest
 ): Promise<TodoItem> {
 
   // const dueDate = Date.parse(createTodoRequest.dueDate)
@@ -35,8 +35,57 @@ export async function createTodo(
     todoId: itemId,
     createdAt: new Date().toISOString(),
     name: createTodoRequest.name,
-    // dueDate: new Date(createTodoRequest.dueDate).toDateString(),
     dueDate: createTodoRequest.dueDate,
+    // dueDate: new Date(createTodoRequest.dueDate).toDateString(),
+    // attachmentUrl: createTodoRequest.attachmentUrl || null,
     done: false,
   })
 }
+
+export async function updateTodo(
+  userId: string,
+  todoId: string,
+  updateTodoRequest: UpdateTodoRequest
+): Promise<TodoItem> {
+  const todoItem = await todoAccess.getOneTodoForUser(userId, todoId)
+
+  if(!todoItem) {
+    throw createError(404, JSON.stringify({ message: 'Todo not found' }))
+  }
+
+  return await todoAccess.updateTodo({
+    ...todoItem,
+    name: updateTodoRequest.name,
+    dueDate: updateTodoRequest.dueDate,
+    done: updateTodoRequest.done,
+  })
+}
+
+export async function deleteTodo(
+  userId: string,
+  todoId: string
+) {
+  const todoItem = await todoAccess.getOneTodoForUser(userId, todoId)
+
+  if(!todoItem) {
+    throw createError(404, JSON.stringify({ message: 'Todo not found' }))
+  }
+
+  await todoAccess.deleteTodo(userId, todoId)
+}
+
+export async function createAttachmentPresignedUrl(
+  userId: string,
+  todoId: string
+) {
+  const todoItem = await todoAccess.getOneTodoForUser(userId, todoId)
+
+  if(!todoItem) {
+    throw createError(404, JSON.stringify({ message: 'Todo not found' }))
+  }
+
+  const util = new AttachmentUtils()
+
+  return await util.getUploadUrl(todoId)
+}
+
