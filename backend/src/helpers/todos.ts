@@ -13,8 +13,10 @@ const logger = createLogger('TodosBusinessLogic')
 
 const todoAccess = new TodosAccess()
 
+const bucketName = process.env.ATTACHMENT_S3_BUCKET
+
 export async function getTodosForUser(userId: string): Promise<TodoItem[]> {
-  logger.info('Getting all todos')
+  logger.info('BusinessLogic - Getting all todos')
   return await todoAccess.getTodosForUser(userId)
 }
 
@@ -22,6 +24,7 @@ export async function createTodo(
   userId: string,
   createTodoRequest: CreateTodoRequest
 ): Promise<TodoItem> {
+  logger.info('BusinessLogic - Create a todo')
 
   // const dueDate = Date.parse(createTodoRequest.dueDate)
   // if(!dueDate) {
@@ -38,6 +41,7 @@ export async function createTodo(
     dueDate: createTodoRequest.dueDate,
     // dueDate: new Date(createTodoRequest.dueDate).toDateString(),
     // attachmentUrl: createTodoRequest.attachmentUrl || null,
+    attachmentUrl: `https://${bucketName}.s3.amazonaws.com/${itemId}`,
     done: false,
   })
 }
@@ -47,6 +51,7 @@ export async function updateTodo(
   todoId: string,
   updateTodoRequest: UpdateTodoRequest
 ): Promise<TodoItem> {
+  logger.info('BusinessLogic - Update a todo')
   const todoItem = await todoAccess.getOneTodoForUser(userId, todoId)
 
   if(!todoItem) {
@@ -65,6 +70,7 @@ export async function deleteTodo(
   userId: string,
   todoId: string
 ) {
+  logger.info('BusinessLogic - Delete a todo')
   const todoItem = await todoAccess.getOneTodoForUser(userId, todoId)
 
   if(!todoItem) {
@@ -78,6 +84,7 @@ export async function createAttachmentPresignedUrl(
   userId: string,
   todoId: string
 ) {
+  logger.info('BusinessLogic - createAttachmentPresignedUrl')
   const todoItem = await todoAccess.getOneTodoForUser(userId, todoId)
 
   if(!todoItem) {
