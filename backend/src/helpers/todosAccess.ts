@@ -38,7 +38,7 @@ export class TodosAccess {
   }
 
   async getOneTodoForUser(userId: string, todoId: string): Promise<TodoItem> {
-    logger.info('Getting one todo')
+    logger.info('Getting one todo for user')
     const result = await this.docClient
     .query({
       TableName: this.todosTable,
