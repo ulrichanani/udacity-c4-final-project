@@ -153,6 +153,20 @@ functions:
           - s3:PutObject
         Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*
 
+  UpdateAttachment:
+    handler: src/lambda/s3/updateAttachment.handler
+    events:
+      - s3:
+          bucket: ${self:provider.environment.ATTACHMENT_S3_BUCKET}
+          event: s3:ObjectCreated:*
+          existing: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+
 resources:
   Resources:
     # Add necessary AWS resources. You will need at least the following AWS resources

@@ -41,7 +41,7 @@ export async function createTodo(
     dueDate: createTodoRequest.dueDate,
     // dueDate: new Date(createTodoRequest.dueDate).toDateString(),
     // attachmentUrl: createTodoRequest.attachmentUrl || null,
-    attachmentUrl: `https://${bucketName}.s3.amazonaws.com/${itemId}`,
+    // attachmentUrl: `https://${bucketName}.s3.amazonaws.com/${itemId}`,
     done: false,
   })
 }
@@ -93,6 +93,25 @@ export async function createAttachmentPresignedUrl(
 
   const util = new AttachmentUtils()
 
-  return await util.getUploadUrl(todoId)
+  return await util.getUploadUrl(todoId, userId)
+}
+
+export async function updateAttachmentUrl(
+  userId: string,
+  todoId: string
+) {
+  logger.info('BusinessLogic - updateAttachmentUrl')
+  const todoItem = await todoAccess.getOneTodoForUser(userId, todoId)
+
+  logger.info('BusinessLogic - updateAttachmentUrl - todoItem', todoItem)
+
+  if(!todoItem) {
+    return
+  }
+
+  return await todoAccess.updateTodo({
+    ...todoItem,
+    attachmentUrl: `https://${bucketName}.s3.amazonaws.com/${todoId}`,
+  })
 }
 

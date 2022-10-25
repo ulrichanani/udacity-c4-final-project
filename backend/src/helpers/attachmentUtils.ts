@@ -10,11 +10,14 @@ export class AttachmentUtils {
     private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION
   ) {}
 
-  getUploadUrl(todoId: string): string {
+  getUploadUrl(todoId: string, userId: string): string {
     return this.s3.getSignedUrl('putObject', {
       Bucket: this.bucketName,
       Key: todoId,
-      Expires: this.urlExpiration
+      Expires: this.urlExpiration,
+      Metadata: {
+        TodoUserId: userId
+      }
     })
   }
 }
